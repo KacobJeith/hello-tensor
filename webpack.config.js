@@ -2,34 +2,92 @@
 
 var path = require('path');
 var webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+var WebpackPwaManifest = require('webpack-pwa-manifest')
 
 module.exports = {
-  context: __dirname,
-
   target: 'web',
 
-  entry: ['./src/index.jsx'],
-
-  output: {
-    path: path.resolve(__dirname, "public"),
-    filename: 'bundle.js',
-  },
-
-  plugins: [
-    new webpack.optimize.OccurrenceOrderPlugin(),
-    new webpack.HotModuleReplacementPlugin(),
+  entry: [
+    path.join(__dirname, 'src/index.jsx')
   ],
 
+  plugins: [
+    new webpack.NamedModulesPlugin(),
+    new HtmlWebpackPlugin({
+      filename: 'index.html',
+      template: path.join(__dirname, 'index_template.html')
+    }),
+    // new BundleAnalyzerPlugin(),
+    new WebpackPwaManifest({
+        name: 'HeepWebsite',
+        filename: "manifest.json",
+        short_name: 'HelloTensor',
+        description: 'Demo App',
+        background_color: '#ffffff',
+        theme_color: '#ffffff',
+        fingerprints: false,
+        orientation: "landscape"
+        // icons: [
+        //   {
+        //     src: path.resolve('src/assets/Heep_Gradient.png'),
+        //     sizes: [96, 128, 192, 256, 384, 512]
+        //   },
+        //   {
+        //     src: path.resolve('src/assets/Heep_Gradient.png'),
+        //     size: '1024x1024'
+        //   }
+        // ]
+    })
+  ],
+
+  optimization: {
+    splitChunks: {
+        cacheGroups: {
+            commons: {
+                test: /[\\/]node_modules[\\/]/,
+                name: "vendors",
+                chunks: "initial"
+            }
+        }
+    }
+  },
+
+  resolve: {
+    modules: ['node_modules'],
+    extensions: ['.js', '.jsx']
+  },
+
   module: {
-    loaders: [
-      { 
-        exclude: /(node_modules|bower_components)/,
-        test: /\.js$/, 
-        loader: 'babel-loader',
+    rules: [
+      {
+        include: /(node_modules)/,
+        sideEffects: false
       },
-      { test: /\.jsx?$/, 
-        loaders: ['babel-loader'], 
-        exclude: /node_modules/ 
+      {
+        exclude: /(node_modules)/,
+        test: /\.jsx?$/,
+        use: {
+          loader: 'babel-loader'
+        },
+      },
+      {
+        test: /\.(jpe?g|png|gif|svg|mov|mp4)$/,
+        use: {
+          loader: 'file-loader',
+          options: {
+            name: '[name].[ext]'
+          }
+        }
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
+      },
+      {
+        test: /\.(eot|svg|ttf|woff|woff2)$/,
+        loader: 'file-loader?name=/fonts/[name].[ext]',
       }
     ],
 
