@@ -9,7 +9,7 @@ import {HashRouter as Router, Route} from 'react-router-dom'
 
 import reducers from './redux/reducers.js'
 
-import HelloWorld from './components/HelloWorld.jsx'
+import Webcam from './components/webcam'
 
 
 const startState = {
@@ -22,7 +22,7 @@ render(
   <Provider store={store}>
     <Router >
     	<div >
-    		<Route exact path="/" component={HelloWorld}/>
+    		<Route exact path="/" component={Webcam}/>
     	</div>
 	</Router>
   </Provider>,
